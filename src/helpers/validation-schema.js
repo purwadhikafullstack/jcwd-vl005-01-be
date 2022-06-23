@@ -26,3 +26,16 @@ module.exports.adminSetNewPassword = joi.object({
   confirm_password: joi.ref("password"),
   adminId: joi.string().required(),
 });
+
+module.exports.adminRegisterSchema = joi.object({
+  username: joi.string().alphanum().min(6).required(),
+  email: joi.string().email().required(),
+  password: joiPassword
+    .string()
+    .min(8)
+    .minOfSpecialCharacters(1)
+    .minOfUppercase(1)
+    .minOfNumeric(1)
+    .required(),
+  confirm_password: joi.ref("password"),
+});

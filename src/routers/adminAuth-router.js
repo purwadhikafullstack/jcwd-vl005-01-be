@@ -10,5 +10,10 @@ routers.get(
   adminAuth.adminVerifyResetPassword
 );
 routers.patch("/auth/admin/change-password", adminAuth.adminSetNewPassword);
+routers.post("/auth/admin/register", adminAuth.adminRegister);
+routers.get(
+  "/auth/admin/verify-account/:token",
+  adminAuth.adminVerifyNewAccount
+);
 
 module.exports = routers;
