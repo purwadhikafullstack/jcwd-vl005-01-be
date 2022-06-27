@@ -1,5 +1,7 @@
+const user_router = require("./user-routers")
 const adminAuthRouter = require("./adminAuth-router");
 
 module.exports = {
-  adminAuthRouter,
+  user_router,
+  adminAuthRouter
 };

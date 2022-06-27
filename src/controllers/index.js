@@ -1,5 +1,7 @@
 const adminAuth = require("./adminAuth-controller");
+const user_controller =  require('./user-controller')
 
 module.exports = {
-  adminAuth,
+  user_controller,
+  adminAuth
 };

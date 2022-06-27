@@ -31,6 +31,8 @@ app.get("/", (req, res) => {
 const routers = require("./routers");
 
 app.use("/api", routers.adminAuthRouter);
+app.use("/api", routers.user_router);
+
 
 // binding to local port
 const PORT = process.env.PORT;
