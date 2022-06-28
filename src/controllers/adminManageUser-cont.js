@@ -38,7 +38,14 @@ module.exports.getUserById = async (req, res) => {
     jwt.verify(token, process.env.JWT_PASS);
 
     // 3. Get user by ID
-    const GET_USER_BY_ID = `select * from user where user_id = ?`;
+    const GET_USER_BY_ID = `
+    select th.tcode, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price
+    from user as u
+    join transaction_header as th on u.user_id = th.user_id
+    join transaction_detail as td on th.id = td.transaction_header_id
+    join product as p on td.product_id = p.id
+    where u.user_id = ?; 
+    `;
     const [USER] = await database.execute(GET_USER_BY_ID, [userId]);
     // 4. Send response
     return res.status(200).send(USER[0]);

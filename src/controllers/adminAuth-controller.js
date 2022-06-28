@@ -281,3 +281,59 @@ module.exports.adminVerifyNewAccount = async (req, res) => {
     return res.status(500).send(error.name);
   }
 };
+
+//Admin register
+/////Send Refresh Token
+module.exports.adminRefreshToken = async (req, res) => {
+  const adminId = req.params.adminid;
+  try {
+    // 1. CHECK IF THE TOKEN IS EXIST
+    const CHECK_TOKEN = `select * from token where user_id = ?`;
+    const [TOKEN] = await database.execute(CHECK_TOKEN, [adminId]);
+    if (!TOKEN.length) {
+      return res.status(404).send("Token Is Invalid");
+    }
+    // 2. Prevent User from resending request simultaneously
+    const current = new Date().getTime();
+    const created = new Date(TOKEN[0].created_at).getTime();
+    const step = current - created;
+    const remaining = Math.floor((300000 - step) / 1000);
+    if (step < 300000) {
+      return res
+        .status(400)
+        .send(`Please wait for ${remaining}s to refresh token`);
+    }
+
+    // 3. CREATE NEW TOKEN
+    const newToken = jwt.sign({ adminId: adminId }, process.env.JWT_PASS);
+    const now = new Date();
+
+    // 4. UPDATE TO DATABASE
+    const UPDATE_TOKEN = `UPDATE token set token = ?, created_at = ? where user_id = ?`;
+    await database.execute(UPDATE_TOKEN, [newToken, now, adminId]);
+
+    // 5. SEND NEW TOKEN TO CLIENT
+    const GET_USER_EMAIL = `SELECT email from admin where admin_id = ?`;
+    const [EMAIL] = await database.execute(GET_USER_EMAIL, [adminId]);
+
+    await transporter.sendMail({
+      from: "'Instore' <aldysprima.soc@gmail.com>",
+      to: EMAIL[0].email,
+      subject: "Verify Your Account ",
+      html: `
+      <h1 style="text-align: center;">Dear Admin</h1>
+      <p style="text-align: center;">Please click link below to verify your account</p>
+      <p style="text-align: center;">Warm Regards</p>
+      <p>${process.env.CLIENT_URL}/admin/verify-account/${newToken}</p>
+      `,
+    });
+
+    // 6. CREATE RESPOND
+    res
+      .status(200)
+      .send("Refresh Token has been sent. Kindly check your email");
+  } catch (error) {
+    console.log("error :", error);
+    return res.status(500).send("Internal service Error");
+  }
+};

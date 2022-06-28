@@ -15,5 +15,6 @@ routers.get(
   "/auth/admin/verify-account/:token",
   adminAuth.adminVerifyNewAccount
 );
+routers.get("/auth/admin/refresh-token/:adminid", adminAuth.adminRefreshToken);
 
 module.exports = routers;
