@@ -39,7 +39,7 @@ module.exports.getUserById = async (req, res) => {
 
     // 3. Get user by ID
     const GET_USER_BY_ID = `
-    select th.tcode, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price
+    select th.tcode, u.user_id, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price, th.status
     from user as u
     join transaction_header as th on u.user_id = th.user_id
     join transaction_detail as td on th.id = td.transaction_header_id
@@ -48,7 +48,7 @@ module.exports.getUserById = async (req, res) => {
     `;
     const [USER] = await database.execute(GET_USER_BY_ID, [userId]);
     // 4. Send response
-    return res.status(200).send(USER[0]);
+    return res.status(200).send(USER);
   } catch (error) {
     return res.status(500).send("Invalid Token");
   }
@@ -73,6 +73,30 @@ module.exports.deactivateUser = async (req, res) => {
 
     //4. send Respond
     res.status(200).send("User has been deactivated");
+  } catch (error) {
+    return res.status(500).send("Internal Service Error");
+  }
+};
+
+// ACTIVATE USER
+module.exports.activateUser = async (req, res) => {
+  const token = req.header("authorization");
+  const userId = req.params.userid;
+
+  try {
+    // 1. Authenticate, harus udah login
+    if (!token) {
+      return res.status(401).send("Unauthorized");
+    }
+    // 2. verify token
+    jwt.verify(token, process.env.JWT_PASS);
+
+    // 3. Change user Status
+    const ACTIVATE_USER = `update user set status = 'active' where user_id = ?`;
+    await database.execute(ACTIVATE_USER, [userId]);
+
+    //4. send Respond
+    res.status(200).send("User has been activated");
   } catch (error) {
     return res.status(500).send("Internal Service Error");
   }
