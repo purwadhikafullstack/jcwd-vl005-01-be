@@ -24,7 +24,7 @@ module.exports.adminSetNewPassword = joi.object({
     .minOfNumeric(1)
     .required(),
   confirm_password: joi.ref("password"),
-  adminId: joi.string().required(),
+  admin_id: joi.string().required(),
 });
 
 module.exports.adminRegisterSchema = joi.object({
