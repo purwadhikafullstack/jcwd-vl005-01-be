@@ -32,6 +32,7 @@ const routers = require("./routers");
 
 app.use("/api", routers.adminAuthRouter);
 app.use("/api", routers.adminManageUserRouter);
+app.use("/api", routers.adminManageTransactionsRouter);
 
 // binding to local port
 const PORT = process.env.PORT;

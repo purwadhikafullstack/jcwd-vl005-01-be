@@ -2,9 +2,6 @@ const database = require("../config").promise();
 
 // GET ALL USERS
 module.exports.getAllUsers = async (req, res) => {
-  const admin_id = req.admin_id;
-  console.log("ADMIN ID :", admin_id);
-
   try {
     // Get all users
     const GET_USERS = `select * from user`;
