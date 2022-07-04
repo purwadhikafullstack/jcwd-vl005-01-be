@@ -43,7 +43,12 @@ module.exports.loginAdmin = async (req, res) => {
 
     // 4. create login token
     const token = jwt.sign(
-      { adminId: ADMIN[0].admin_id },
+      {
+        admin_id: ADMIN[0].admin_id,
+        username: ADMIN[0].username,
+        email: ADMIN[0].email,
+        status: ADMIN[0].status,
+      },
       process.env.JWT_PASS
     );
     delete ADMIN[0].password;
@@ -54,38 +59,12 @@ module.exports.loginAdmin = async (req, res) => {
   }
 };
 
-// ADMIN KEEP LOGIN
-
-module.exports.keepLoginAdmin = async (req, res) => {
-  const token = req.header("authorization");
-
-  try {
-    // 1. CHECK IF REQ CONTAINS TOKEN
-    if (!token) {
-      return res.status(400).send("Unauthorized");
-    }
-    // 2. IF TOKEN EXIST, VALIDATE TOKEN
-    const { adminId } = jwt.verify(token, process.env.JWT_PASS);
-    if (!adminId) {
-      return res.status(400).send("Invalid Token");
-    }
-    // 3. IF TOKEN VALID, DO QUERY TO GET USER DATA
-    const GET_ADMIN = `select * from admin where admin_id = ?`;
-    const [ADMIN] = await database.execute(GET_ADMIN, [adminId]);
-    // 4. CREATE RESPOND
-    delete ADMIN[0].password;
-    return res.status(200).send(ADMIN[0]);
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
-};
-
 // ADMIN FORGET PASSWORD
 ///// SEND LINK TO REGISTERED EMAIL
 
 module.exports.adminSendLinkResetPass = async (req, res) => {
   const body = req.body;
-
+  
   try {
     //1. Validate Email
     const { error } = adminSendResetPassEmailSchema.validate(body);
@@ -100,7 +79,7 @@ module.exports.adminSendLinkResetPass = async (req, res) => {
     }
     //3. generate token
     const token = jwt.sign(
-      { adminId: EMAIL[0].admin_id },
+      { admin_id: EMAIL[0].admin_id },
       process.env.JWT_PASS,
       {
         expiresIn: "180s",
@@ -133,8 +112,8 @@ module.exports.adminVerifyResetPassword = async (req, res) => {
 
   try {
     try {
-      const { adminId } = jwt.verify(token, process.env.JWT_PASS);
-      return res.json({ status: 200, adminId: adminId });
+      const { admin_id } = jwt.verify(token, process.env.JWT_PASS);
+      return res.json({ status: 200, admin_id: admin_id });
     } catch (error) {
       return res.status(400).send(error.message);
     }
@@ -147,7 +126,7 @@ module.exports.adminVerifyResetPassword = async (req, res) => {
 ///// SET NEW PASSWORD
 
 module.exports.adminSetNewPassword = async (req, res) => {
-  const { password, adminId, confirm_password } = req.body;
+  const { password, admin_id, confirm_password } = req.body;
   try {
     // 1. verify password & confirm password
     if (password !== confirm_password) {
@@ -162,9 +141,9 @@ module.exports.adminSetNewPassword = async (req, res) => {
       return res.status(400).send(error.details[0].message);
     }
 
-    // 3. Verify AdminID
+    // 3. Verify admin_id
     const CHECK_ADMIN = `select * from admin where admin_id = ?`;
-    const [ADMIN] = await database.execute(CHECK_ADMIN, [adminId]);
+    const [ADMIN] = await database.execute(CHECK_ADMIN, [admin_id]);
     if (!ADMIN.length) {
       return res.status(404).send("Account is not found");
     }
@@ -175,7 +154,7 @@ module.exports.adminSetNewPassword = async (req, res) => {
 
     // 5. Update Password
     const UPDATE_PASSWORD = `update admin set password = ? where admin_id = ?`;
-    await database.execute(UPDATE_PASSWORD, [hashedPassword, adminId]);
+    await database.execute(UPDATE_PASSWORD, [hashedPassword, admin_id]);
 
     res.status(200).send("Password Has Been Changed");
   } catch (error) {
@@ -228,7 +207,7 @@ module.exports.adminRegister = async (req, res) => {
       hashedPassword,
     ]);
     // 8. CREATE WEB TOKEN
-    const token = jwt.sign({ adminId: admin_id }, process.env.JWT_PASS);
+    const token = jwt.sign({ admin_id: admin_id }, process.env.JWT_PASS);
 
     // 9. STORE TOKEN
     const STORE_TOKEN = `insert into token(user_id, token) values(?, ?)`;
@@ -268,13 +247,13 @@ module.exports.adminVerifyNewAccount = async (req, res) => {
       return res.status(400).send("Token isn't valid");
     }
     // 2. Validate Token
-    const { adminId } = jwt.verify(token, process.env.JWT_PASS);
+    const { admin_id } = jwt.verify(token, process.env.JWT_PASS);
     // 3. Change Admin Status
     const UPDATE_ADMIN_STATUS = `update admin set status = 'verified' where admin_id = ?`;
-    await database.execute(UPDATE_ADMIN_STATUS, [adminId]);
+    await database.execute(UPDATE_ADMIN_STATUS, [admin_id]);
     // 4. DELETE TOKEN
     const DELETE_TOKEN = "delete from token where user_id = ? and token = ?";
-    await database.execute(DELETE_TOKEN, [adminId, token]);
+    await database.execute(DELETE_TOKEN, [admin_id, token]);
     // 5. Send Respond
     return res.status(200).send("Account has been verified");
   } catch (error) {
@@ -285,11 +264,11 @@ module.exports.adminVerifyNewAccount = async (req, res) => {
 //Admin register
 /////Send Refresh Token
 module.exports.adminRefreshToken = async (req, res) => {
-  const adminId = req.params.adminid;
+  const admin_id = req.params.admin_id;
   try {
     // 1. CHECK IF THE TOKEN IS EXIST
     const CHECK_TOKEN = `select * from token where user_id = ?`;
-    const [TOKEN] = await database.execute(CHECK_TOKEN, [adminId]);
+    const [TOKEN] = await database.execute(CHECK_TOKEN, [admin_id]);
     if (!TOKEN.length) {
       return res.status(404).send("Token Is Invalid");
     }
@@ -305,16 +284,16 @@ module.exports.adminRefreshToken = async (req, res) => {
     }
 
     // 3. CREATE NEW TOKEN
-    const newToken = jwt.sign({ adminId: adminId }, process.env.JWT_PASS);
+    const newToken = jwt.sign({ admin_id: admin_id }, process.env.JWT_PASS);
     const now = new Date();
 
     // 4. UPDATE TO DATABASE
     const UPDATE_TOKEN = `UPDATE token set token = ?, created_at = ? where user_id = ?`;
-    await database.execute(UPDATE_TOKEN, [newToken, now, adminId]);
+    await database.execute(UPDATE_TOKEN, [newToken, now, admin_id]);
 
     // 5. SEND NEW TOKEN TO CLIENT
     const GET_USER_EMAIL = `SELECT email from admin where admin_id = ?`;
-    const [EMAIL] = await database.execute(GET_USER_EMAIL, [adminId]);
+    const [EMAIL] = await database.execute(GET_USER_EMAIL, [admin_id]);
 
     await transporter.sendMail({
       from: "'Instore' <aldysprima.soc@gmail.com>",
