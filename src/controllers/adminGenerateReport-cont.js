@@ -17,8 +17,11 @@ module.exports.generateReport = async (req, res) => {
         `;
       const [TRANSACTIONS] = await database.execute(GET_DATA, [start, end]);
       let total = 0;
+      let temp;
       for (let i = 0; i < TRANSACTIONS.length; i++) {
         total += TRANSACTIONS[i].grand_total;
+        temp = TRANSACTIONS[i].created_at.toLocaleDateString();
+        TRANSACTIONS[i].created_at = temp;
       }
       return res.json({
         status: 200,
@@ -34,8 +37,11 @@ module.exports.generateReport = async (req, res) => {
         `;
       const [TRANSACTIONS] = await database.execute(GET_DATA, [start, end]);
       let total = 0;
+      let temp;
       for (let i = 0; i < TRANSACTIONS.length; i++) {
         total += TRANSACTIONS[i].grand_total;
+        temp = TRANSACTIONS[i].created_at.toLocaleDateString();
+        TRANSACTIONS[i].created_at = temp;
       }
       const profit = total * 0.3;
       return res.json({
@@ -51,6 +57,12 @@ module.exports.generateReport = async (req, res) => {
         where created_at between ? and ?; 
         `;
       const [TRANSACTIONS] = await database.execute(GET_DATA, [start, end]);
+
+      let temp;
+      for (let i = 0; i < TRANSACTIONS.length; i++) {
+        temp = TRANSACTIONS[i].created_at.toLocaleDateString();
+        TRANSACTIONS[i].created_at = temp;
+      }
 
       const operationalCost = 100000 * TRANSACTIONS.length;
       const fixedCost = 50000 * TRANSACTIONS.length;
@@ -85,6 +97,12 @@ module.exports.generateReport = async (req, res) => {
         where created_at between ? and ?; 
       `;
       const [NUM_OF_SALES] = await database.execute(GET_DATA, [start, end]);
+
+      let temp;
+      for (let i = 0; i < NUM_OF_SALES.length; i++) {
+        temp = NUM_OF_SALES[i].created_at.toLocaleDateString();
+        NUM_OF_SALES[i].created_at = temp;
+      }
       const totalsales = NUM_OF_SALES.length;
 
       return res.json({

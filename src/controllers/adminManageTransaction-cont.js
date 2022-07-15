@@ -13,6 +13,12 @@ module.exports.getAllTransactions = async (req, res) => {
     join user_address as ua on u.user_id = ua.user_id;
     `;
     const [TRANSACTIONS] = await database.execute(GET_TRANSACTIONS);
+    // Change Date Format
+    let temp;
+    for (let i = 0; i < TRANSACTIONS.length; i++) {
+      temp = TRANSACTIONS[i].created_at.toLocaleDateString();
+      TRANSACTIONS[i].created_at = temp;
+    }
     // Send response
     return res.status(200).send(TRANSACTIONS);
   } catch (error) {
