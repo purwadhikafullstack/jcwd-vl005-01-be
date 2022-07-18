@@ -31,12 +31,14 @@ module.exports.loginAdmin = async (req, res) => {
     // 2. Check if user is exist
 
     const CHECK_ADMIN = `select * from admin where username = ? or email = ?`;
+
     const [ADMIN] = await database.execute(CHECK_ADMIN, [user, user]);
     if (!ADMIN.length) {
       return res.status(400).send("Username or Email Not Found");
     }
     // 3. if user exist, compare password
     const valid = await bcrypt.compare(password, ADMIN[0].password);
+
     if (!valid) {
       return res.status(400).send("Wrong Password!");
     }
