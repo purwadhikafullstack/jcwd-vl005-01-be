@@ -10,7 +10,7 @@ const app = express();
 
 // Config Middlewares
 app.use(express.json());
-app.use(cors({ exposedHeaders: ["authorization"] }));
+app.use(cors({ exposedHeaders: ["userToken"] }));
 
 // test database connection
 
@@ -32,6 +32,7 @@ const routers = require("./routers");
 
 app.use("/api", routers.adminAuthRouter);
 app.use("/api", routers.user_router);
+app.use("/api", routers.products_routers);
 
 
 // binding to local port

@@ -243,7 +243,8 @@ module.exports.login = async (req, res) => {
         USER[0].token = token
         logindata = USER[0]
         
-        res.header('Auth-Token', `Bearer ${token}`).status(200).send(logindata)
+        // res.header('userToken', `Bearer ${token}`).status(200).send(logindata)
+        res.status(200).send(logindata)
     } catch (error) {
         console.log("error :", error);
         return res.status(500).send("Internal service Error")
@@ -272,7 +273,8 @@ module.exports.keepLogin = async (req, res) => {
         // create respond
         delete USER[0].password
         
-        res.status(200).send(USER[0]).redirect(301, 'http://localhost:3000/')
+        res.status(200).send(USER[0])
+        // res.status(200).send(USER[0]).redirect(301, 'http://localhost:3000/')
     } catch (error) {
         console.log("error :", error);
         return res.status(500).send("Internal Service Error");
