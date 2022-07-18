@@ -1,7 +1,7 @@
 {
   "name": "instore-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Initial commit",
   "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,5 +19,13 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.5",
     "uuid": "^8.3.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aleanajla/jcwd-vl005-01-be.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aleanajla/jcwd-vl005-01-be/issues"
+  },
+  "homepage": "https://github.com/aleanajla/jcwd-vl005-01-be#readme"
 }
