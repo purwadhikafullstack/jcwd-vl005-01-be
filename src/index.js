@@ -12,6 +12,11 @@ const app = express();
 app.use(express.json());
 app.use(cors({ exposedHeaders: ["authorization"] }));
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
 // test database connection
 
 database.connect((error) => {
@@ -31,6 +36,8 @@ app.get("/", (req, res) => {
 const routers = require("./routers");
 
 app.use("/api", routers.adminAuthRouter);
+app.use('/api', routers.ProductRoute);
+app.use('/api', routers.CategoryRoute);
 
 // binding to local port
 const PORT = process.env.PORT;
