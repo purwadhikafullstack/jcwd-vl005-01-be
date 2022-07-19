@@ -1,6 +1,5 @@
 const path = require('path');
 const db = require("../config").promise();
-const fs = require("fs");
 
 module.exports = {
     getProducts: async(req,res) => {

@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const FileUpload = require("express-fileupload");
 dotenv.config();
 
 const database = require("./config");
@@ -11,10 +12,12 @@ const app = express();
 // Config Middlewares
 app.use(express.json());
 app.use(cors({ exposedHeaders: ["authorization"] }));
+app.use(FileUpload());
+app.use(express.static("public"));
 
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// const bodyParser = require('body-parser');
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // test database connection
