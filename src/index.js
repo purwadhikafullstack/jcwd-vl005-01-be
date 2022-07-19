@@ -39,6 +39,9 @@ app.get("/", (req, res) => {
 const routers = require("./routers");
 
 app.use("/api", routers.adminAuthRouter);
+app.use("/api", routers.user_router);
+app.use("/api", routers.products_routers);
+
 app.use('/api', routers.ProductRoute);
 app.use('/api', routers.CategoryRoute);
 app.use("/api", routers.adminManageUserRouter);
