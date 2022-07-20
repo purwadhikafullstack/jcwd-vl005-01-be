@@ -10,12 +10,11 @@ const app = express();
 
 // Config Middlewares
 app.use(express.json());
-app.use(cors({ exposedHeaders: ["userToken"] }));
+app.use(cors({ exposedHeaders: ["userToken", "authorization"] }));
 
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 
 // test database connection
 
@@ -38,9 +37,8 @@ const routers = require("./routers");
 app.use("/api", routers.adminAuthRouter);
 app.use("/api", routers.user_router);
 app.use("/api", routers.products_routers);
-
-app.use('/api', routers.ProductRoute);
-app.use('/api', routers.CategoryRoute);
+app.use("/api", routers.ProductRoute);
+app.use("/api", routers.CategoryRoute);
 app.use("/api", routers.adminManageUserRouter);
 app.use("/api", routers.adminManageTransactionsRouter);
 app.use("/api", routers.adminGenerateReport);
