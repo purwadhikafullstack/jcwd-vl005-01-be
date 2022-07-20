@@ -66,7 +66,7 @@ module.exports.register = async (req, res) => {
             { userId: id },
             process.env.JWT_PASS,
             {
-            expiresIn: "300000s",
+            expiresIn: "86400s", //1day expires
             }
         );
         console.log(token);
@@ -84,7 +84,7 @@ module.exports.register = async (req, res) => {
             `
                 <h1 style="text-align: center;">Welcome New User</h1>
                 <p>Thank you for register to our website, please proceed to activate your account.</p>
-                <a href='http://localhost:5000/api/auth/verify/${token}'>Click here to proceed verify</a>
+                <a href='http://localhost:3000/verified/${token}'>Click here to proceed verify</a>
             `
         })
 
@@ -104,14 +104,13 @@ module.exports.verifyAccount = async (req, res) => {
         const CHECK_TOKEN = `SELECT token FROM token WHERE token = ?;`
         const [ TOKEN ] = await database.execute(CHECK_TOKEN, [token])
         if (!TOKEN.length) {
-            return res.status(400).send('token invalid.')
+            return res.status(400).send('token not exist.')
         }
 
-        // validate token
-        const CheckVToken = jwt.verify(token, process.env.JWT_PASS)
-        console.log(CheckVToken.userId);
-        if (!CheckVToken.userId.length) {
-            return res.status(400).send('token expired.')
+        // if token exist -> validate token
+        const { userId } = jwt.verify(token, process.env.JWT_PASS)
+        if (!userId) {
+            return res.status(400).send("Invalid Token")
         }
 
         const CHECK_UID = `SELECT User_id FROM token WHERE token = ?;`
@@ -125,11 +124,11 @@ module.exports.verifyAccount = async (req, res) => {
         const [ INFO ] = await database.execute(UPDATE_STATUS, [uid])
 
         // delete token
-        const DELETE_TOKEN = `DELETE FROM token WHERE User_id = ?;`
-        const [ INFO_DELETE ] = await database.execute(DELETE_TOKEN, [uid])
+        // const DELETE_TOKEN = `DELETE FROM token WHERE User_id = ?;`
+        // const [ INFO_DELETE ] = await database.execute(DELETE_TOKEN, [uid])
 
         // create respond
-        res.status(200).redirect(301, 'http://localhost:3000/verified')
+        res.status(200).send("Verify Account Success")
 
     } catch (error) {
         console.log("error :", error);
@@ -164,7 +163,7 @@ module.exports.refreshToken = async (req, res) => {
         const CHECK_UID = `SELECT id FROM user WHERE email = ?;`
         const [cuid] = await database.execute(CHECK_UID, [email])
         const arruid = cuid[0]
-        const UID = arruid.uid
+        const UID = arruid.id
         console.log('userId :', UID);
 
         // get email
@@ -174,30 +173,30 @@ module.exports.refreshToken = async (req, res) => {
         // const mail = arrmail.email
         // console.log(mail);
 
-
         // if token has been expired -> update token
         const token = jwt.sign(
-            { userId: cuid[0].id },
+            { userId: EMAIL[0].id },
             process.env.JWT_PASS,
             {
-            expiresIn: "180s",
+            expiresIn: "86400s", //1day expired
             }
         );
-        console.log(token);
-        console.log(userId);
+        console.log("token :", token);
+        // console.log(userId);
 
-        const UPDATE_TOKEN = `UPDATE token SET token = ?, createdAt = ? WHERE User_id = ?;`
+        const UPDATE_TOKEN = `UPDATE token SET token = ?, created_at = ? WHERE User_id = ?;`
         const [ INFO ] = await database.execute(UPDATE_TOKEN, [token, new Date(), UID])
 
         // send token to client email
         const TRANSPORTER_INFO = await transporter.sendMail({
-            from : 'Admin Dimasocial <bowotp@gmail.com>',
-            to : `${mail}`,
-            subject : 'OTP Verification',
+            from : 'Instore <bowotp@gmail.com>',
+            to : `${email}`,
+            subject : 'User Verification',
             html: 
             `
-                <p>Your Verification Code is ${token}, do not share to others.</p>
-                <a href='http://localhost:5000/api/auth/verify/${token}'>Click here to proceed verify</a>
+                <h1 style="text-align: center;">New Verification Link</h1>
+                <p>Thank you for register to our website, please proceed to activate your account.</p>
+                <a href='http://localhost:3000/verified/${token}'>Click here to proceed verify</a>
             `
         })
 
@@ -235,8 +234,17 @@ module.exports.login = async (req, res) => {
         }
 
         // 4. if password valid, -> create token using JWT
-        const token = jwt.sign({ userId : USER[0].id }, process.env.JWT_PASS)
-        console.log('login token:', token)
+        // const token = jwt.sign({ userId : USER[0].id }, process.env.JWT_PASS)
+        // console.log('login token:', token)
+        const token = jwt.sign(
+        {
+            user_id: USER[0].id,
+            username: USER[0].username,
+            email: USER[0].email,
+            status: USER[0].status,
+        },
+        process.env.JWT_PASS
+        );
 
         // 5. create respond and sent token to client
         delete USER[0].password
@@ -252,34 +260,34 @@ module.exports.login = async (req, res) => {
 }
 
 // KEEPLOGIN -> FRONTEND WANT TO RETRIEVE USER'S DATA AFTER PAGE REFRSHED
-module.exports.keepLogin = async (req, res) => {
-    const token = req.header('authorization')
-    try {
-        // check token
-        if (!token) {
-            return res.status(401).send("Token is required")
-        }
+// module.exports.keepLogin = async (req, res) => {
+//     const token = req.header('authorization')
+//     try {
+//         // check token
+//         if (!token) {
+//             return res.status(401).send("Token is required")
+//         }
 
-        // if token exist -> validate token
-        const { userId } = jwt.verify(token, process.env.JWT_PASS)
-        if (!userId) {
-            return res.status(400).send("Invalid Token")
-        }
+//         // if token exist -> validate token
+//         const { userId } = jwt.verify(token, process.env.JWT_PASS)
+//         if (!userId) {
+//             return res.status(400).send("Invalid Token")
+//         }
 
-        // if token valid => retrieve user's data
-        const GET_USER = `SELECT * FROM user WHERE id = ?;`
-        const [ USER ] = await database.execute(GET_USER, [userId])
+//         // if token valid => retrieve user's data
+//         const GET_USER = `SELECT * FROM user WHERE id = ?;`
+//         const [ USER ] = await database.execute(GET_USER, [userId])
 
-        // create respond
-        delete USER[0].password
+//         // create respond
+//         delete USER[0].password
         
-        res.status(200).send(USER[0])
-        // res.status(200).send(USER[0]).redirect(301, 'http://localhost:3000/')
-    } catch (error) {
-        console.log("error :", error);
-        return res.status(500).send("Internal Service Error");
-    }
-}
+//         res.status(200).send(USER[0])
+//         // res.status(200).send(USER[0]).redirect(301, 'http://localhost:3000/')
+//     } catch (error) {
+//         console.log("error :", error);
+//         return res.status(500).send("Internal Service Error");
+//     }
+// }
 
 //reset password, 1. check email and password, pass and newpass, to sent token
 module.exports.userCheckEmailResPass = async (req, res) => {
@@ -300,7 +308,7 @@ module.exports.userCheckEmailResPass = async (req, res) => {
             { userId: EMAIL[0].id },
             process.env.JWT_PASS,
             {
-            expiresIn: "180s",
+            expiresIn: "360s",
             }
         );
         console.log(token);
