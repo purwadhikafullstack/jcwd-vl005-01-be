@@ -66,7 +66,7 @@ module.exports.loginAdmin = async (req, res) => {
 
 module.exports.adminSendLinkResetPass = async (req, res) => {
   const body = req.body;
-  
+
   try {
     //1. Validate Email
     const { error } = adminSendResetPassEmailSchema.validate(body);
@@ -212,7 +212,7 @@ module.exports.adminRegister = async (req, res) => {
     const token = jwt.sign({ admin_id: admin_id }, process.env.JWT_PASS);
 
     // 9. STORE TOKEN
-    const STORE_TOKEN = `insert into token(user_id, token) values(?, ?)`;
+    const STORE_TOKEN = `insert into registration_token(user_id, token) values(?, ?)`;
     await database.execute(STORE_TOKEN, [admin_id, token]);
 
     // 9. SEND VERIF EMAIL
@@ -243,7 +243,7 @@ module.exports.adminVerifyNewAccount = async (req, res) => {
   const token = req.params.token;
   try {
     // 1. Check if token exist
-    const CHECK_TOKEN = `select * from token where token = ?`;
+    const CHECK_TOKEN = `select * from registration_token where token = ?`;
     const [TOKEN] = await database.execute(CHECK_TOKEN, [token]);
     if (!TOKEN.length) {
       return res.status(400).send("Token isn't valid");
@@ -254,7 +254,8 @@ module.exports.adminVerifyNewAccount = async (req, res) => {
     const UPDATE_ADMIN_STATUS = `update admin set status = 'verified' where admin_id = ?`;
     await database.execute(UPDATE_ADMIN_STATUS, [admin_id]);
     // 4. DELETE TOKEN
-    const DELETE_TOKEN = "delete from token where user_id = ? and token = ?";
+    const DELETE_TOKEN =
+      "delete from registration_token where user_id = ? and token = ?";
     await database.execute(DELETE_TOKEN, [admin_id, token]);
     // 5. Send Respond
     return res.status(200).send("Account has been verified");
@@ -269,7 +270,7 @@ module.exports.adminRefreshToken = async (req, res) => {
   const admin_id = req.params.admin_id;
   try {
     // 1. CHECK IF THE TOKEN IS EXIST
-    const CHECK_TOKEN = `select * from token where user_id = ?`;
+    const CHECK_TOKEN = `select * from registration_token where user_id = ?`;
     const [TOKEN] = await database.execute(CHECK_TOKEN, [admin_id]);
     if (!TOKEN.length) {
       return res.status(404).send("Token Is Invalid");
@@ -290,7 +291,7 @@ module.exports.adminRefreshToken = async (req, res) => {
     const now = new Date();
 
     // 4. UPDATE TO DATABASE
-    const UPDATE_TOKEN = `UPDATE token set token = ?, created_at = ? where user_id = ?`;
+    const UPDATE_TOKEN = `UPDATE registration_token set token = ?, created_at = ? where user_id = ?`;
     await database.execute(UPDATE_TOKEN, [newToken, now, admin_id]);
 
     // 5. SEND NEW TOKEN TO CLIENT
