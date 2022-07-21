@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const FileUpload = require("express-fileupload");
 dotenv.config();
 
 const database = require("./config");
@@ -11,6 +12,8 @@ const app = express();
 // Config Middlewares
 app.use(express.json());
 app.use(cors({ exposedHeaders: ["userToken", "authorization"] }));
+app.use(FileUpload());
+app.use(express.static("public"));
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
@@ -37,8 +40,10 @@ const routers = require("./routers");
 app.use("/api", routers.adminAuthRouter);
 app.use("/api", routers.user_router);
 app.use("/api", routers.products_routers);
-app.use("/api", routers.ProductRoute);
-app.use("/api", routers.CategoryRoute);
+app.use("/api", routers.cart_router);
+
+app.use('/api', routers.ProductRoute);
+app.use('/api', routers.CategoryRoute);
 app.use("/api", routers.adminManageUserRouter);
 app.use("/api", routers.adminManageTransactionsRouter);
 app.use("/api", routers.adminGenerateReport);
