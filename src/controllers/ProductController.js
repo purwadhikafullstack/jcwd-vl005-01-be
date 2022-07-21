@@ -14,6 +14,18 @@ module.exports = {
             res.status(500).send("internal service error");
         }
     },
+    getProductsDetails: async(req,res) => {
+        try {
+            const q = `select s.id, p.img_url,p.name,p.price, p.weight_gram,p.description, c.categoryName, w.name_location, s.stock, s.reserved_stock from product p join category c on p.categoryId = c.categoryId join stock s on s.product_id = p.id join warehouses w on w.id = s.warehouse_id`;
+    
+            const [product] = await db.execute(q);
+    
+            res.status(200).send(product);
+        } catch (error) {
+            console.log(error.message);
+            res.status(500).send("internal service error");
+        }
+    },
     getProductsById: async(req,res) => {
         const id = req.params.id;
     
@@ -57,12 +69,26 @@ module.exports = {
                                 img_url,
                                 categoryId
                             ])
+
                             res.status(201).send("Product Created Successfully");
+
             } catch (error) {
                 console.log(error.message);
                 res.status(500).send("Internal service error");
             }
         })
+    },
+    saveProductStock: async(req,res) => {
+        let {product_id, warehouse_id, stock , reserved_stock} = req.body;
+        try {
+            const q2= `insert into stock(product_id,warehouse_id, stock, reserved_stock) values (?,?,?,?)`
+            const [stocks] = await db.execute(q2,[product_id, warehouse_id, stock, reserved_stock]);
+            res.status(201).send("Successfully added stock!")
+            
+        } catch (error) {
+            console.log(error.message);
+            res.status(500).send("Internal service error");
+        }   
     },
     deleteProducts: async(req,res) => {
         const id = req.params.id;
@@ -123,5 +149,50 @@ module.exports = {
             res.status(500).send("Internal service error");
         }
         
+    },
+    getWarehouse: async(req,res) => {
+        try {
+            const q = `select * from warehouses`;
+    
+            const [warehouse] = await db.execute(q);
+    
+            res.status(200).send(warehouse);
+        } catch (error) {
+            console.log(error.message);
+            res.status(500).send("internal service error");
+        }
+    },
+    deleteStock: async(req,res) => {
+        const id = req.params.id;
+        try {
+            const q = `delete from stock where id = ? `;
+    
+            const [warehouse] = await db.execute(q, [id]);
+    
+            res.status(200).send(warehouse);
+        } catch (error) {
+            console.log(error.message);
+            res.status(500).send("internal service error");
+        }
+    },
+    editStock: async(req,res) => {
+        const id = req.params.id;
+        const body = req.body;
+
+        
+        try {
+            let dataUpdate = [];
+            for(let prop in body){
+                dataUpdate.push(`${prop} = '${body[prop]}'`);
+            }
+
+            const q = `update stock set ${dataUpdate} where id = ? `;
+            await db.execute(q, [id]);
+    
+            res.status(200).send("Data Sucessfully Updated");
+        } catch (error) {
+            console.log(error.message);
+            res.status(500).send("internal service error");
+        }
     }
 }

@@ -41,6 +41,7 @@ const routers = require("./routers");
 app.use("/api", routers.adminAuthRouter);
 app.use("/api", routers.user_router);
 app.use("/api", routers.products_routers);
+app.use("/api", routers.cart_router);
 
 app.use('/api', routers.ProductRoute);
 app.use('/api', routers.CategoryRoute);
