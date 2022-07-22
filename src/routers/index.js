@@ -7,6 +7,7 @@ const CategoryRoute = require("./CategoryRoute");
 const adminManageUserRouter = require("./adminManageUser-router");
 const adminManageTransactionsRouter = require("./adminManageTransaction-router");
 const adminGenerateReport = require("./adminGenerateReport-router");
+const cart_router = require("./cart-routers");
 
 module.exports = {
   user_router,
@@ -17,6 +18,7 @@ module.exports = {
   CategoryRoute,
   adminManageUserRouter,
   adminManageTransactionsRouter,
-  adminGenerateReport
+  adminGenerateReport,
+  cart_router
 };
 

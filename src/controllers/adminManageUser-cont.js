@@ -19,12 +19,12 @@ module.exports.getUserById = async (req, res) => {
   try {
     // Get user by ID
     const GET_USER_BY_ID = `
-    select th.tcode, u.user_id, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price, th.status
+    select th.tcode, u.id, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price, th.status
     from user as u
-    join transaction_header as th on u.user_id = th.user_id
+    join transaction_header as th on u.id = th.user_id
     join transaction_detail as td on th.id = td.transaction_header_id
     join product as p on td.product_id = p.id
-    where u.user_id = ?; 
+    where u.id = ?; 
     `;
     const [USER] = await database.execute(GET_USER_BY_ID, [userId]);
     // Send response
@@ -40,7 +40,7 @@ module.exports.deactivateUser = async (req, res) => {
 
   try {
     // Change user Status
-    const DEACTIVATE_USER = `update user set status = 'inactive' where user_id = ?`;
+    const DEACTIVATE_USER = `update user set status = 'inactive' where id = ?`;
     await database.execute(DEACTIVATE_USER, [userId]);
 
     // send Respond
@@ -56,7 +56,7 @@ module.exports.activateUser = async (req, res) => {
 
   try {
     // Change user Status
-    const ACTIVATE_USER = `update user set status = 'active' where user_id = ?`;
+    const ACTIVATE_USER = `update user set status = 'active' where id = ?`;
     await database.execute(ACTIVATE_USER, [userId]);
 
     // send Respond
