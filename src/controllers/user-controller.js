@@ -72,7 +72,7 @@ module.exports.register = async (req, res) => {
         console.log(token);
         
         // store token to database
-        const INSERT_TOKEN = `INSERT INTO token (User_id, token) VALUES (${database.escape(id)}, ${database.escape(token)});`
+        const INSERT_TOKEN = `INSERT INTO registration_token (User_id, token) VALUES (${database.escape(id)}, ${database.escape(token)});`
         const [ INFO_TOKEN ] = await database.execute(INSERT_TOKEN) 
 
         // 8. send otp to client -> via email        
@@ -101,7 +101,7 @@ module.exports.verifyAccount = async (req, res) => {
     const token = req.params.token
     console.log(token)
     try {        
-        const CHECK_TOKEN = `SELECT token FROM token WHERE token = ?;`
+        const CHECK_TOKEN = `SELECT token FROM registration_token WHERE token = ?;`
         const [ TOKEN ] = await database.execute(CHECK_TOKEN, [token])
         if (!TOKEN.length) {
             return res.status(400).send('token not exist.')
@@ -113,14 +113,14 @@ module.exports.verifyAccount = async (req, res) => {
             return res.status(400).send("Invalid Token")
         }
 
-        const CHECK_UID = `SELECT User_id FROM token WHERE token = ?;`
+        const CHECK_UID = `SELECT User_id FROM registration_token WHERE token = ?;`
         const [cuid] = await database.execute(CHECK_UID, [token])
         const arruid = cuid[0]
         const uid = arruid.User_id
         console.log('userId :', uid);
 
         // change status
-        const UPDATE_STATUS = `UPDATE user SET is_active = 1 WHERE id = ?;`
+        const UPDATE_STATUS = `UPDATE user SET status = active WHERE id = ?;`
         const [ INFO ] = await database.execute(UPDATE_STATUS, [uid])
 
         // delete token
@@ -391,3 +391,19 @@ module.exports.userSetNewPassword = async (req, res) => {
         return res.status(500).send("Internal service Error");
     }
 };
+
+
+module.exports.getUserAddressById = async (req, res) => {
+    const user_id  = req.params.userId;
+    console.log(user_id);
+    try {
+        const GET_USERADDRESS = `SELECT * FROM user_address WHERE user_id = ?;` 
+        const [ USERADDRESS ] = await database.execute(GET_USERADDRESS, [user_id])
+
+        console.log(USERADDRESS)
+
+        return res.status(200).send(USERADDRESS)
+    } catch (error) {
+        return res.status(500).send("Internal service Error");
+    }
+}
