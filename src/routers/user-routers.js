@@ -6,6 +6,7 @@ const { user_controller } = require('../controllers')
 // define route
 routers.post('/users/regis', user_controller.register)
 routers.get('/user/:userId', user_controller.getUserAddressById)
+routers.patch('/user/:userId', user_controller.patchUserAddress)
 routers.get('/auth/verify/:token', user_controller.verifyAccount)
 routers.post('/auth/refresh', user_controller.refreshToken)
 routers.post('/auth/user/login', user_controller.login)

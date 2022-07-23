@@ -84,7 +84,7 @@ module.exports.register = async (req, res) => {
             `
                 <h1 style="text-align: center;">Welcome New User</h1>
                 <p>Thank you for register to our website, please proceed to activate your account.</p>
-                <a href='http://localhost:3000/verified/${token}'>Click here to proceed verify</a>
+                <a href='${process.env.CLIENT_URL}/verified/${token}'>Click here to proceed verify</a>
             `
         })
 
@@ -196,7 +196,7 @@ module.exports.refreshToken = async (req, res) => {
             `
                 <h1 style="text-align: center;">New Verification Link</h1>
                 <p>Thank you for register to our website, please proceed to activate your account.</p>
-                <a href='http://localhost:3000/verified/${token}'>Click here to proceed verify</a>
+                <a href='${process.env.CLIENT_URL}/verified/${token}'>Click here to proceed verify</a>
             `
         })
 
@@ -259,36 +259,6 @@ module.exports.login = async (req, res) => {
     }
 }
 
-// KEEPLOGIN -> FRONTEND WANT TO RETRIEVE USER'S DATA AFTER PAGE REFRSHED
-// module.exports.keepLogin = async (req, res) => {
-//     const token = req.header('authorization')
-//     try {
-//         // check token
-//         if (!token) {
-//             return res.status(401).send("Token is required")
-//         }
-
-//         // if token exist -> validate token
-//         const { userId } = jwt.verify(token, process.env.JWT_PASS)
-//         if (!userId) {
-//             return res.status(400).send("Invalid Token")
-//         }
-
-//         // if token valid => retrieve user's data
-//         const GET_USER = `SELECT * FROM user WHERE id = ?;`
-//         const [ USER ] = await database.execute(GET_USER, [userId])
-
-//         // create respond
-//         delete USER[0].password
-        
-//         res.status(200).send(USER[0])
-//         // res.status(200).send(USER[0]).redirect(301, 'http://localhost:3000/')
-//     } catch (error) {
-//         console.log("error :", error);
-//         return res.status(500).send("Internal Service Error");
-//     }
-// }
-
 //reset password, 1. check email and password, pass and newpass, to sent token
 module.exports.userCheckEmailResPass = async (req, res) => {
     const {email} = req.body;
@@ -321,7 +291,7 @@ module.exports.userCheckEmailResPass = async (req, res) => {
             html: `
                 <h1 style="text-align: center;">Reset Your Password</h1>
                 <p>We have received your request to reset the password for your account</p>
-                <a href='http://localhost:3000/user/reset-pass/${token}'>Click here to set new password</a>
+                <a href='${process.env.CLIENT_URL}/user/reset-pass/${token}'>Click here to set new password</a>
                 `,
             });
         res.status(200).send("Email has been sent to reset your password");
@@ -405,5 +375,39 @@ module.exports.getUserAddressById = async (req, res) => {
         return res.status(200).send(USERADDRESS)
     } catch (error) {
         return res.status(500).send("Internal service Error");
+    }
+}
+
+// PATCH USER ADDRESS
+module.exports.patchUserAddress = async (req, res) => {
+    const user_Id = req.params.userId
+    const body = req.body
+    try {
+        // check data -> if student with studentId exist in our database
+        const CHECK_DATA = `SELECT * FROM user_address WHERE user_id = ?;`
+        const [ PROFILE ] = await database.execute(CHECK_DATA, [user_Id])
+        if (!PROFILE.length) {
+            return res.status(400).send('profile not found.')
+        }
+
+        // is body empty?
+        const isEmpty = !Object.keys(body).length
+        if (isEmpty) {
+            return res.status(400).send('input data empty.')
+        }
+
+        // define update query
+        let query = []
+        for (let key in body) {
+            query.push(`${key}='${body[key]}'`)
+        }
+        const UPDATE_USERADDRESS = `UPDATE user_address SET ${query} WHERE user_id = ?;`
+        console.log(UPDATE_USERADDRESS)
+        const [ INFO ] = await database.execute(UPDATE_USERADDRESS, [user_Id])
+
+        
+        res.status(200).send('update user success')
+    } catch (error) {
+        return res.status(500).send("Patch : Internal service Error");
     }
 }
