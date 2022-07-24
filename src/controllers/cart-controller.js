@@ -3,10 +3,11 @@ const db = require("../config").promise();
 
 module.exports = {
     getCartProduct: async(req,res) => {
+        const user_id = req.params.id;
         try {
-            const q = `select * from cart c join product p on p.id = c.product_id`;
+            const q = `select SUM(c.qty*p.price) as sum, p.name, p.price, p.img_url, p.categoryId, c.qty, c.product_id , c.id, c.user_id from cart c join product p on p.id = c.product_id where c.user_id =? GROUP BY  p.name, p.price, p.img_url, p.categoryId, c.qty, c.product_id , c.id, c.user_id`;
     
-            const [product] = await db.execute(q);
+            const [product] = await db.execute(q, [user_id]);
     
             res.status(200).send(product);
         } catch (error) {
@@ -54,12 +55,12 @@ module.exports = {
 
     },
     updateCartProduct: async(req,res) => {
-        let {user_id,product_id,qty} = req.body;
-        
+        const id = req.params.id;
+        let {qty} = req.body;
 
         try {
-            const q = `update cart set qty = ? where product_id = ? AND user_id=?`;
-            await db.execute(q, [qty, product_id, user_id]);
+            const q = `update cart set qty = ? where id = ?`;
+            await db.execute(q, [qty,id]);
     
             res.status(200).send("Successfully Updated!");
         } catch (error) {
@@ -68,9 +69,10 @@ module.exports = {
         }
     },
     getSumCartProduct: async(req,res) => {
+        const id = req.params.id;
         try {
-            const q = `SELECT SUM(p.price) FROM cart c JOIN product p ON p.id = c.product_id`;
-            const [sum] = await db.execute(q);
+            const q = `SELECT SUM(p.price) as sum FROM cart c JOIN product p ON p.id = c.product_id where c.user_id = ?`;
+            const [sum] = await db.execute(q, [id]);
     
             res.status(200).send(sum);
         } catch (error) {
