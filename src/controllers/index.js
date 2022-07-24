@@ -1,5 +1,6 @@
 const adminAuth = require("./adminAuth-controller");
 const user_controller =  require('./user-controller')
+const userTransaction_controller =  require('./user-transaction')
 const products_controller =  require('./products-controller')
 const product = require("./ProductController");
 const category = require("./CategoryController");
@@ -11,6 +12,7 @@ const checkout_controller = require("./checkout-controller")
 
 module.exports = {
   user_controller,
+  userTransaction_controller,
   adminAuth,
   products_controller,
   product,

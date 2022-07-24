@@ -1,4 +1,5 @@
 const user_router = require("./user-routers")
+const userTransaction_router = require("./userTransaction-routers")
 const adminAuthRouter = require("./adminAuth-router");
 const products_routers = require("./products-routers")
 const ProductRoute = require("./ProductRoute");
@@ -11,6 +12,7 @@ const checkout_router = require("./checkout-router");
 
 module.exports = {
   user_router,
+  userTransaction_router,
   adminAuthRouter,
   products_routers,
   ProductRoute,
