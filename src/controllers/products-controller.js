@@ -2,9 +2,6 @@ const database = require('../config').promise()
 
 
 module.exports.getProducts = async (req, res) => {
-    // const sort = req.query.sort || 'product_id' 
-    // const order = req.query.order || 'ASC'
-    // console.log(req.query);
 
     try {
         const GET_PRODUCTS = `select * from product p join category c on p.categoryId = c.categoryId` 
@@ -34,3 +31,4 @@ module.exports.getProductsById = async (req, res) => {
         return res.status(500).send('Internal Service Error')
     }
 }
+
