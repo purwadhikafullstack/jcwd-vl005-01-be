@@ -8,6 +8,7 @@ const adminManageUser = require("./adminManageUser-cont");
 const adminManageTransactions = require("./adminManageTransaction-cont");
 const adminGenerateReport = require("./adminGenerateReport-cont");
 const cart_controller = require("./cart-controller")
+const checkout_controller = require("./checkout-controller")
 
 module.exports = {
   user_controller,
@@ -19,6 +20,7 @@ module.exports = {
   adminManageUser,
   adminManageTransactions,
   adminGenerateReport,
-  cart_controller
+  cart_controller,
+  checkout_controller
 };
 

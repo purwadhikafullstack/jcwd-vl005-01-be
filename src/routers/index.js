@@ -8,6 +8,7 @@ const adminManageUserRouter = require("./adminManageUser-router");
 const adminManageTransactionsRouter = require("./adminManageTransaction-router");
 const adminGenerateReport = require("./adminGenerateReport-router");
 const cart_router = require("./cart-routers");
+const checkout_router = require("./checkout-router");
 
 module.exports = {
   user_router,
@@ -19,6 +20,7 @@ module.exports = {
   adminManageUserRouter,
   adminManageTransactionsRouter,
   adminGenerateReport,
-  cart_router
+  cart_router,
+  checkout_router
 };
 
