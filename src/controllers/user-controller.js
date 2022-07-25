@@ -55,7 +55,7 @@ module.exports.register = async (req, res) => {
         const [ INFO ] = await database.execute(INSERT_USER)
         // 6. store data into our database USER ADDRESS
         const INSERT_PROFILE = `
-            INSERT INTO user_address (User_id)
+            INSERT INTO user_address (user_id)
             VALUES(${database.escape(id)});
         `
         const [ INFO_PROFILE ] = await database.execute(INSERT_PROFILE)
@@ -72,7 +72,7 @@ module.exports.register = async (req, res) => {
         console.log(token);
         
         // store token to database
-        const INSERT_TOKEN = `INSERT INTO registration_token (User_id, token) VALUES (${database.escape(id)}, ${database.escape(token)});`
+        const INSERT_TOKEN = `INSERT INTO registration_token (user_id, token) VALUES (${database.escape(id)}, ${database.escape(token)});`
         const [ INFO_TOKEN ] = await database.execute(INSERT_TOKEN) 
 
         // 8. send otp to client -> via email        
@@ -120,7 +120,7 @@ module.exports.verifyAccount = async (req, res) => {
         console.log('userId :', uid);
 
         // change status
-        const UPDATE_STATUS = `UPDATE user SET status = active WHERE id = ?;`
+        const UPDATE_STATUS = `UPDATE user SET status = 'active' WHERE id = ?;`
         const [ INFO ] = await database.execute(UPDATE_STATUS, [uid])
 
         // delete token
@@ -184,7 +184,7 @@ module.exports.refreshToken = async (req, res) => {
         console.log("token :", token);
         // console.log(userId);
 
-        const UPDATE_TOKEN = `UPDATE token SET token = ?, created_at = ? WHERE User_id = ?;`
+        const UPDATE_TOKEN = `UPDATE registration_token SET token = ?, created_at = ? WHERE User_id = ?;`
         const [ INFO ] = await database.execute(UPDATE_TOKEN, [token, new Date(), UID])
 
         // send token to client email
