@@ -5,7 +5,7 @@ module.exports = {
     getCartProduct: async(req,res) => {
         const user_id = req.params.id;
         try {
-            const q = `select SUM(c.qty*p.price) as sum, p.name, p.price, p.img_url, p.categoryId, c.qty, c.product_id , c.id, c.user_id from cart c join product p on p.id = c.product_id where c.user_id =? GROUP BY  p.name, p.price, p.img_url, p.categoryId, c.qty, c.product_id , c.id, c.user_id`;
+            const q = `select SUM(c.qty*p.price) as sum, p.name, p.price, p.img_url, p.categoryId, c.qty, c.product_id , c.id, c.user_id, s.stock, s.warehouse_id from cart c join product p on p.id = c.product_id  join stock s on s.product_id = c.product_id where c.user_id = ? GROUP BY  p.name, p.price, p.img_url, p.categoryId, c.qty, c.product_id , c.id, c.user_id`;
     
             const [product] = await db.execute(q, [user_id]);
     
@@ -38,16 +38,17 @@ module.exports = {
                 const [product] = await db.execute(q,[product_id]);
 
                 if(product.length) {
-                    const qUpdate = `update from cart set qty = ?`
-                    await db.execute(qUpdate, [qty]);
-                    res.status(200).send("Data Succesfully Updated")
+                    const qUpdate = `update cart set qty = ? where product_id=? AND user_id = ?`
+                    await db.execute(qUpdate, [qty,product_id, user_id]);
+                }
+                else{
+                    const qInsert = `insert into cart(user_id,product_id,qty) values(?,?,?)`;
+                    await db.execute(qInsert, [user_id,product_id,qty]);
                 }
             }
             
-            const qInsert = `insert into cart(user_id,product_id,qty) values(?,?,?)`;
-            await db.execute(qInsert, [user_id,product_id,qty]);
-            res.status(200).send(product);
-
+            res.status(200).send("Successfully Added!");
+            
         } catch (error) {
             console.log(error.message);
             res.status(500).send("internal service error");
