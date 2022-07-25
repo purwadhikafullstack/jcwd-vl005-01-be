@@ -1,0 +1,60 @@
+-- MySQL dump 10.13  Distrib 8.0.28, for Win64 (x86_64)
+--
+-- Host: localhost    Database: db_warehouse_app
+-- ------------------------------------------------------
+-- Server version	8.0.28
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `user_address`
+--
+
+DROP TABLE IF EXISTS `user_address`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_address` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(150) NOT NULL,
+  `address` varchar(140) DEFAULT NULL,
+  `postal` varchar(10) DEFAULT NULL,
+  `city` varchar(20) DEFAULT NULL,
+  `province` varchar(20) DEFAULT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_userIdAddress` (`user_id`),
+  CONSTRAINT `fk_userIdAddress` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_address`
+--
+
+LOCK TABLES `user_address` WRITE;
+/*!40000 ALTER TABLE `user_address` DISABLE KEYS */;
+INSERT INTO `user_address` VALUES (1,'0E10719C-BFF8-9514-CDA3-A78E348AC465','236-2456 Mattis. Rd.','55295','Kendari','West Papua','Home',99.99999999,999.99999999),(2,'11603E82-4A35-AD4A-87DA-CF2386DE880B','640-6991 Eget, Street','25524','Palangka Raya','Aceh','Home',99.99999999,999.99999999),(3,'1B5D97EB-FE4A-59EE-E13B-8EDEE1C19FCA','876-5296 Egestas Rd.','82664','Dumai','East Nusa Tenggara','Home',99.99999999,999.99999999),(4,'851ADD42-0F79-7B80-17EB-E9A3EAB4791C','8310 Lectus Road','74828','Semarang','East Java','Home',99.99999999,999.99999999),(5,'C4950E46-50BF-6AB1-EB5E-08AD3809DE73','Ap #842-3938 Et, Av.','87724','Tanjung Pinang','Aceh','Home',99.99999999,999.99999999),(6,'CAB25192-4AE1-B2A5-19EB-C4B5482949A9','Ap #664-7919 Dolor Rd.','56551','Kupang','Papua','Home',99.99999999,999.99999999),(7,'DD1FC4B9-F195-5CCC-8982-3AB9AC6C5D57','Ap #815-3894 Netus Rd.','95354','Tidore','East Java','Home',99.99999999,999.99999999),(8,'DDA2ABB5-9A80-1BA1-B2D4-D7A3A7611152','P.O. Box 786, 6243 Magna. Road','34130','Tual','East Nusa Tenggara','Home',99.99999999,999.99999999),(9,'E1BE7B09-570B-DFAE-F85D-9A491C17311A','454-4658 Ut Street','41548','Tanjung Pinang','Papua','Home',99.99999999,999.99999999),(10,'ECDE1236-5F6E-15B8-9CAB-437873EDA2CB','P.O. Box 534, 1080 Neque Ave','84208','Semarang','West Java','Home',99.99999999,999.99999999),(11,'a48365dc-d30e-45b4-b326-2111d43d7888',NULL,NULL,NULL,NULL,NULL,NULL,NULL),(12,'e15cda05-6bfa-427d-b7ad-bf247e511c2d',NULL,NULL,NULL,NULL,NULL,NULL,NULL),(13,'5b144429-3f3d-4724-a4b1-969f16863e9b','','','','','Office',NULL,NULL),(14,'2a3e6331-7504-40b4-b644-c3dc69dbd323','','','Surabaya','','Home',NULL,NULL);
+/*!40000 ALTER TABLE `user_address` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2022-07-25 21:12:50

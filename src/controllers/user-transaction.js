@@ -23,11 +23,15 @@ module.exports.getHistoryTransaction = async (req, res) => {
 module.exports.getInvoice = async (req, res) => {
     const tcode = req.params.invoiceN
     try {
-        const GET_INVOICE = `SELECT *, date_format(created_at, '%M %e, %Y') as date 
+        const GET_INVOICE = `SELECT th.tcode, th.shipping_warehouse_id, th.address, th.city, th.province, th.postal
+            , ws.province AS warehouse_province, ws.city AS warehouse_city
+            , p.name, td.qty, p.price, th.grand_total 
+            , date_format(created_at, '%M %e, %Y') as date 
             FROM transaction_header th
             LEFT JOIN transaction_detail td ON th.id = td.transaction_header_id
-            LEFT JOIN product p ON td.product_id = p.id  
-            WHERE tcode = ?;` 
+            LEFT JOIN product p ON td.product_id = p.id
+            LEFT JOIN warehouses ws ON th.shipping_warehouse_id = ws.id  
+            WHERE th.tcode = ?;` 
         const [ INVOICE ] = await database.execute(GET_INVOICE, [tcode])
         console.log(INVOICE)
 
