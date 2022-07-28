@@ -6,11 +6,26 @@ module.exports.getHistoryTransaction = async (req, res) => {
     const userId = req.params.userId
     try {
         const GET_HISTRANS = `SELECT *, date_format(created_at, '%M %e, %Y') as date 
+            FROM transaction_header 
+            WHERE user_id = ?;` 
+        const [ HISTRANS ] = await database.execute(GET_HISTRANS, [userId])
+        console.log(HISTRANS)
+
+        return res.status(200).send(HISTRANS)
+    } catch (error) {
+        console.log('error: ', error)
+        return res.status(500).send('Internal Service Error')
+    }
+}
+module.exports.getHistoryTransactionDetail = async (req, res) => {
+    const tcode = req.params.invoiceN
+    try {
+        const GET_HISTRANS = `SELECT *, date_format(created_at, '%M %e, %Y') as date 
             FROM transaction_header th
             LEFT JOIN transaction_detail td ON th.id = td.transaction_header_id
             LEFT JOIN product p ON td.product_id = p.id  
-            WHERE user_id = ?;` 
-        const [ HISTRANS ] = await database.execute(GET_HISTRANS, [userId])
+            WHERE tcode = ?;` 
+        const [ HISTRANS ] = await database.execute(GET_HISTRANS, [tcode])
         console.log(HISTRANS)
 
         return res.status(200).send(HISTRANS)
@@ -25,11 +40,9 @@ module.exports.getInvoice = async (req, res) => {
     try {
         const GET_INVOICE = `SELECT th.tcode, th.shipping_warehouse_id, th.address, th.city, th.province, th.postal
             , ws.province AS warehouse_province, ws.city AS warehouse_city
-            , p.name, td.qty, p.price, th.grand_total 
+            ,  th.grand_total 
             , date_format(created_at, '%M %e, %Y') as date 
             FROM transaction_header th
-            LEFT JOIN transaction_detail td ON th.id = td.transaction_header_id
-            LEFT JOIN product p ON td.product_id = p.id
             LEFT JOIN warehouses ws ON th.shipping_warehouse_id = ws.id  
             WHERE th.tcode = ?;` 
         const [ INVOICE ] = await database.execute(GET_INVOICE, [tcode])
