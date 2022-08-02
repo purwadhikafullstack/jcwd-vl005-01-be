@@ -19,8 +19,9 @@ module.exports.getUserById = async (req, res) => {
   try {
     // Get user by ID
     const GET_USER_BY_ID = `
-    select th.tcode, u.id, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price, th.status
+    select th.tcode, u.id, u.username, u.email, u.status, td.product_id, td.qty, p.name, p.price, th.status, ua.address, ua.postal, ua.province
     from user as u
+    join user_address as ua on u.id = ua.user_id
     join transaction_header as th on u.id = th.user_id
     join transaction_detail as td on th.id = td.transaction_header_id
     join product as p on td.product_id = p.id
