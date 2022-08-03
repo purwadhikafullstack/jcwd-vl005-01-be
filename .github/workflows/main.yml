@@ -28,5 +28,6 @@ jobs:
           script: |
             cd /root/jcwdvl005/group1/jcwd-vl005-01-be
             git pull origin main
+            git status
             npm install
             pm2 restart group1api
