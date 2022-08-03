@@ -35,7 +35,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /root/jcwdvl005/group1/jcwd-vl005-01-be
-			      git pull origin development
-            git status
+            git pull origin development
             npm install
             pm2 restart group1api
